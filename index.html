@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,8 @@
     <meta name="theme-color" content="#4A3B94">
     <style>
         body {
-            background-color: #240046; /* Jules dark background color */
+            background-color: #240046;
+            /* Jules dark background color */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -18,45 +20,84 @@
             color: white;
             text-align: center;
         }
+
         .loading {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 20px;
         }
+
         .logo {
             width: 120px;
             height: 120px;
             animation: pulse 2s infinite ease-in-out;
         }
+
         @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(1); opacity: 0.8; }
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
         }
     </style>
 </head>
+
 <body>
-    <div class="loading">
+    <div id="browser-view" class="loading">
         <img src="icon.png" alt="Jules Logo" class="logo">
-        <p>Launching Jules...</p>
+        <h1>Jules Standalone</h1>
+        <p>To use Jules without the browser bar:</p>
+        <ol style="text-align: left; display: inline-block;">
+            <li>Tap the <b>three dots</b> in Chrome</li>
+            <li>Select <b>Install app</b> or <b>Add to Home screen</b></li>
+            <li>Open the app from your home screen!</li>
+        </ol>
+        <button id="redirect-now"
+            style="margin-top: 20px; padding: 10px 20px; border-radius: 20px; border: none; background: #4A3B94; color: white; font-weight: bold; cursor: pointer;">
+            Enter Jules Now (with Browser UI)
+        </button>
+    </div>
+
+    <div id="standalone-view" class="loading" style="display: none;">
+        <img src="icon.png" alt="Jules Logo" class="logo">
+        <p>Launching Standalone Jules...</p>
     </div>
 
     <script>
-        // Register Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('SW registered'))
-                    .catch(err => console.log('SW failed', err));
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
+        if (isStandalone) {
+            document.getElementById('browser-view').style.display = 'none';
+            document.getElementById('standalone-view').style.display = 'flex';
+
+            // Redirect immediately in standalone mode
+            setTimeout(() => {
+                window.location.replace('https://jules.google.com');
+            }, 500);
+        } else {
+            // Register Service Worker for installation
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('sw.js');
+                });
+            }
+
+            document.getElementById('redirect-now').addEventListener('click', () => {
+                window.location.href = 'https://jules.google.com';
             });
         }
-
-        // Redirect to Jules
-        // Note: We use location.replace to avoid the "back" button loop
-        setTimeout(() => {
-            window.location.replace('https://jules.google.com');
-        }, 800);
     </script>
 </body>
+
 </html>
