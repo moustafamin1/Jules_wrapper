@@ -3,8 +3,8 @@
   "short_name": "Jules",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#240046",
-  "theme_color": "#4A3B94",
+  "background_color": "#131314",
+  "theme_color": "#131314",
   "icons": [
     {
       "src": "icon.png",
