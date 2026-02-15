@@ -75,7 +75,10 @@
     </div>
 
     <script>
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                             window.matchMedia('(display-mode: fullscreen)').matches ||
+                             window.navigator.standalone ||
+                             document.referrer.includes('android-app://');
 
         if (isStandalone) {
             document.getElementById('browser-view').style.display = 'none';

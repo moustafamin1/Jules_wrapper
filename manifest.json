@@ -1,7 +1,7 @@
 {
   "name": "Jules",
   "short_name": "Jules",
-  "start_url": ".",
+  "start_url": ".?standalone=true",
   "display": "fullscreen",
   "background_color": "#131314",
   "theme_color": "#131314",
