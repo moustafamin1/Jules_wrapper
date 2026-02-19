@@ -5,12 +5,12 @@ This repository contains a Jules PWA wrapper. To improve the user experience, ag
 ## Notification Rules
 
 1. **Read Configuration**: Before sending a notification, read the `ntfy_topic` and `app_url` from `notifications.json`.
-    - **Note**: `notifications.json` is ignored by git for security. If it is missing, check `notifications.example.json` to see how to create it.
-2. **When to Notify (Strict Timing)**:
-    - **The "Last Action" Rule**: The notification `curl` command must be the **absolute last tool call** you make in a turn. Do not perform any other work, read any more files, or run any more tests after sending the notification.
-    - **Completion**: Only notify when you are 100% finished and are about to call `submit`. Your final tool sequence should be: `[curl, submit]`.
-    - **Questions/Blocked**: Only notify when you are waiting for the user. Your final tool sequence should be: `[curl, request_user_input]`.
-    - **No Intermediate Pings**: Never send a notification if you intend to continue working in the next turn. The user should never open the app and see "Jules is thinking" or see work in progress.
+2. **When to Notify (Zero Noise Policy)**:
+    - **No Intermediate Pings**: Never send a notification for "internal testing", "verification", "code reviews", "pre-commit steps", or "progress updates".
+    - **Final Turn Only**: Only send a notification in the turn where you are actually finishing your work or asking a question.
+    - **The "Last Action" Rule**: The notification `curl` command must be the **absolute last tool call** you make in a turn.
+    - **Completion**: Only notify when you are 100% finished and are about to call `submit`. Your final tool sequence in that turn must be: `[..., curl, submit]`.
+    - **Questions/Blocked**: Only notify when you are waiting for the user. Your final tool sequence in that turn must be: `[..., curl, request_user_input]`.
 3. **How to Notify**: Use the `run_in_bash_session` tool to send a POST request to ntfy.sh.
     - **Command Template**:
       ```bash
@@ -21,14 +21,5 @@ This repository contains a Jules PWA wrapper. To improve the user experience, ag
         -d "<Your concise message here>" \
         https://ntfy.sh/<ntfy_topic>
       ```
-    - **Example**:
-      ```bash
-      curl \
-        -H "Title: Jules" \
-        -H "Click: https://moustafamin1.github.io/Jules_wrapper/" \
-        -H "Icon: https://moustafamin1.github.io/Jules_wrapper/icon.png" \
-        -d "Task complete! You can now check the results." \
-        https://ntfy.sh/your-private-topic
-      ```
 
-By following these rules, you ensure that when the user taps the notification, the app is ready for their immediate review or response.
+By following these rules, you ensure that the user is only interrupted when their presence is actually required to move the task forward.
