@@ -2,8 +2,8 @@
   "name": "Jules",
   "short_name": "Jules",
   "start_url": ".?standalone=true",
-  "display": "standalone",
-  "display_override": ["standalone", "minimal-ui"],
+  "display": "minimal-ui",
+  "display_override": ["minimal-ui", "standalone"],
   "background_color": "#131314",
   "theme_color": "#131314",
   "icons": [
