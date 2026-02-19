@@ -1,8 +1,8 @@
-const CACHE_NAME = 'jules-pwa-v4';
+const CACHE_NAME = 'jules-pwa-v5';
 const ASSETS = [
     './',
     './index.html',
-    './manifest.json?v=4',
+    './manifest.json?v=5',
     './icon.png'
 ];
 
