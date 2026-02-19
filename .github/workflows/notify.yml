@@ -1,0 +1,20 @@
+name: Notify on Push
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send ntfy notification
+        run: |
+          curl \
+            -H "Title: Jules" \
+            -H "Click: https://moustafamin1.github.io/Jules_wrapper/" \
+            -H "Icon: https://moustafamin1.github.io/Jules_wrapper/icon.png" \
+            -d "Task Complete! My changes have been submitted and are now live." \
+            https://ntfy.sh/${{ secrets.NTFY_TOPIC || 'jules-notifs-mou-12347' }}
