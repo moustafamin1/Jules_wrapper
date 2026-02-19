@@ -2,7 +2,7 @@
   "name": "Jules",
   "short_name": "Jules",
   "start_url": ".?standalone=true",
-  "display": "fullscreen",
+  "display": "standalone",
   "background_color": "#131314",
   "theme_color": "#131314",
   "icons": [
