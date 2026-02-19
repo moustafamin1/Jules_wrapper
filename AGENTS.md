@@ -16,7 +16,6 @@ This repository contains a Jules PWA wrapper. To improve the user experience, ag
         -H "Title: Jules" \
         -H "Click: <app_url>" \
         -H "Icon: <app_url>/icon.png" \
-        -H "Tags: robot" \
         -d "<Your message here>" \
         https://ntfy.sh/<ntfy_topic>
       ```
@@ -26,7 +25,6 @@ This repository contains a Jules PWA wrapper. To improve the user experience, ag
         -H "Title: Jules" \
         -H "Click: https://moustafamin1.github.io/Jules_wrapper/" \
         -H "Icon: https://moustafamin1.github.io/Jules_wrapper/icon.png" \
-        -H "Tags: robot" \
         -d "I have finished the task. Please review." \
         https://ntfy.sh/jules-notifs-mou-12347
       ```
