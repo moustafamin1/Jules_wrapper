@@ -1,6 +1,6 @@
 # AI Agent Instructions
 
-This repository contains a Jules PWA wrapper. To improve the user experience, agents must notify the user via push notification when they have finished a task or require input.
+This repository contains a Jules PWA wrapper. The following instructions apply specifically to agents working within this repository. To improve the user experience, agents must notify the user via push notification when they have finished a task or require input.
 
 ## Notification Rules
 
