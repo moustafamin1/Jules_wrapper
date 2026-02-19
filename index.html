@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-title" content="Jules">
     <link rel="apple-touch-icon" href="icon.png">
     <title>Jules Standalone</title>
-    <link rel="manifest" href="manifest.json?v=5">
+    <link rel="manifest" href="manifest.json?v=6">
     <meta name="theme-color" content="#131314">
     <style>
         body {
@@ -18,11 +18,18 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             color: white;
             text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 400px;
+            width: 100%;
         }
 
         .loading {
@@ -33,9 +40,46 @@
         }
 
         .logo {
-            width: 120px;
-            height: 120px;
+            width: 100px;
+            height: 100px;
+            margin-bottom: 10px;
             animation: pulse 2s infinite ease-in-out;
+        }
+
+        .btn {
+            margin-top: 15px;
+            padding: 12px 24px;
+            border-radius: 24px;
+            border: none;
+            background: #3c4043;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #4a4d51;
+        }
+
+        .btn-primary {
+            background: #8ab4f8;
+            color: #202124;
+        }
+
+        .btn-primary:hover {
+            background: #aecbfa;
+        }
+
+        .status-box {
+            background: #303134;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: left;
+            font-size: 14px;
         }
 
         @keyframes pulse {
@@ -58,24 +102,33 @@
 </head>
 
 <body>
-    <div id="browser-view" class="loading">
-        <img src="icon.png" alt="Jules Logo" class="logo">
-        <h1>Jules Standalone</h1>
-        <p>To use Jules without the browser bar:</p>
-        <ol style="text-align: left; display: inline-block;">
-            <li>Tap the <b>three dots</b> in Chrome</li>
-            <li>Select <b>Install app</b> or <b>Add to Home screen</b></li>
-            <li>Open the app from your home screen!</li>
-        </ol>
-        <button id="redirect-now"
-            style="margin-top: 20px; padding: 10px 20px; border-radius: 20px; border: none; background: #303134; color: white; font-weight: bold; cursor: pointer;">
-            Enter Jules Now (with Browser UI)
-        </button>
-    </div>
+    <div class="container">
+        <div id="setup-view" class="loading">
+            <img src="icon.png" alt="Jules Logo" class="logo">
+            <h1>Jules</h1>
 
-    <div id="standalone-view" class="loading" style="display: none;">
-        <img src="icon.png" alt="Jules Logo" class="logo">
-        <p>Launching Standalone Jules...</p>
+            <div id="notification-prompt" style="display: none;">
+                <p>To receive updates and notifications, please enable them for this app.</p>
+                <button id="enable-notifications" class="btn btn-primary">Enable Notifications</button>
+            </div>
+
+            <div id="notification-status" class="status-box" style="display: none;">
+                <b>Notification Status:</b> <span id="status-text">Checking...</span>
+                <p id="status-detail" style="margin-top: 5px; opacity: 0.8;"></p>
+                <button id="test-notification" class="btn" style="display: none;">Send Test Notification</button>
+            </div>
+
+            <button id="launch-btn" class="btn">Enter Jules</button>
+
+            <div id="install-instructions" style="margin-top: 30px; text-align: left; font-size: 14px;">
+                <p><b>For the best experience:</b></p>
+                <ol>
+                    <li>Tap the <b>share/menu</b> button</li>
+                    <li>Select <b>Add to Home Screen</b> or <b>Install App</b></li>
+                    <li>Launch Jules from your home screen</li>
+                </ol>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -84,33 +137,122 @@
                              window.navigator.standalone ||
                              document.referrer.includes('android-app://');
 
-        if (isStandalone) {
-            document.getElementById('browser-view').style.display = 'none';
-            document.getElementById('standalone-view').style.display = 'flex';
+        const launchBtn = document.getElementById('launch-btn');
+        const enableBtn = document.getElementById('enable-notifications');
+        const testBtn = document.getElementById('test-notification');
+        const statusText = document.getElementById('status-text');
+        const statusDetail = document.getElementById('status-detail');
+        const notificationPrompt = document.getElementById('notification-prompt');
+        const notificationStatus = document.getElementById('notification-status');
+        const installInstructions = document.getElementById('install-instructions');
 
-            // Redirect immediately in standalone mode
-            setTimeout(() => {
-                window.location.replace('https://jules.google.com');
-            }, 500);
-        } else {
-            // Register Service Worker for installation
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('sw.js');
-                });
-                let refreshing = false;
-                navigator.serviceWorker.addEventListener('controllerchange', () => {
-                    if (!refreshing) {
-                        window.location.reload();
-                        refreshing = true;
+        if (isStandalone) {
+            installInstructions.style.display = 'none';
+        }
+
+        function updateNotificationUI() {
+            if (!('Notification' in window)) {
+                statusText.innerText = 'Not Supported';
+                statusDetail.innerText = 'Your browser does not support notifications.';
+                notificationStatus.style.display = 'block';
+                return;
+            }
+
+            const permission = Notification.permission;
+            statusText.innerText = permission.charAt(0).toUpperCase() + permission.slice(1);
+            notificationStatus.style.display = 'block';
+
+            if (permission === 'default') {
+                notificationPrompt.style.display = 'block';
+                statusDetail.innerText = 'Notifications are not yet enabled.';
+                testBtn.style.display = 'none';
+            } else if (permission === 'granted') {
+                notificationPrompt.style.display = 'none';
+                statusDetail.innerText = 'You are all set to receive notifications!';
+                testBtn.style.display = 'block';
+
+                // If in standalone mode and already granted, we could auto-redirect
+                if (isStandalone && !sessionStorage.getItem('manual_stop')) {
+                    setTimeout(launchJules, 1500);
+                }
+            } else if (permission === 'denied') {
+                notificationPrompt.style.display = 'none';
+                statusDetail.innerText = 'Notifications are blocked. Please enable them in your browser/system settings for this app.';
+                testBtn.style.display = 'none';
+            }
+        }
+
+        async function requestPermission() {
+            const permission = await Notification.requestPermission();
+            console.log('Notification permission:', permission);
+            updateNotificationUI();
+            if (permission === 'granted') {
+                sendTestNotification('Notifications Enabled!', 'You will now receive updates from Jules.');
+
+                // Attempt to get push subscription for debugging
+                navigator.serviceWorker.ready.then(async registration => {
+                    try {
+                        const subscription = await registration.pushManager.getSubscription() ||
+                                             await registration.pushManager.subscribe({
+                                                 userVisibleOnly: true,
+                                                 applicationServerKey: null // Should be set if using a specific push service
+                                             });
+                        console.log('Push Subscription:', JSON.stringify(subscription));
+                    } catch (e) {
+                        console.error('Push subscription failed:', e);
                     }
                 });
             }
-
-            document.getElementById('redirect-now').addEventListener('click', () => {
-                window.location.href = 'https://jules.google.com';
-            });
         }
+
+        function sendTestNotification(title, body) {
+            if (Notification.permission === 'granted') {
+                navigator.serviceWorker.ready.then(registration => {
+                    registration.showNotification(title || 'Jules Test', {
+                        body: body || 'This is a test notification from your Jules PWA.',
+                        icon: 'icon.png',
+                        badge: 'icon.png',
+                        vibrate: [200, 100, 200],
+                        data: {
+                            url: window.location.href
+                        }
+                    });
+                });
+            }
+        }
+
+        function launchJules() {
+            window.location.replace('https://jules.google.com');
+        }
+
+        enableBtn.addEventListener('click', requestPermission);
+        testBtn.addEventListener('click', () => sendTestNotification());
+        launchBtn.addEventListener('click', () => {
+            sessionStorage.setItem('manual_stop', 'true');
+            launchJules();
+        });
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(() => {
+                    updateNotificationUI();
+                });
+            });
+
+            let refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!refreshing) {
+                    window.location.reload();
+                    refreshing = true;
+                }
+            });
+        } else {
+            updateNotificationUI();
+        }
+
+        // Initial UI check
+        updateNotificationUI();
     </script>
 </body>
 
