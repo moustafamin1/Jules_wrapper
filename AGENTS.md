@@ -6,10 +6,11 @@ This repository contains a Jules PWA wrapper. To improve the user experience, ag
 
 1. **Read Configuration**: Before sending a notification, read the `ntfy_topic` and `app_url` from `notifications.json`.
 2. **When to Notify (Strict Timing)**:
-    - **Questions**: If you need to ask the user a question using `request_user_input`, send the notification in the **same turn**, immediately *before* calling the tool.
-    - **Completion**: When you have finished all tasks and are about to call `submit`, send the notification as the **final tool call** before the submit.
-    - **Avoid Noise**: Do not send notifications for intermediate steps, progress updates, or internal tests. Only notify when the user actually needs to take action or see a result.
-3. **How to Notify**: Use the `run_in_bash_session` tool to send a POST request to ntfy.sh with specific headers.
+    - **The "Last Action" Rule**: The notification `curl` command must be the **absolute last tool call** you make in a turn. Do not perform any other work, read any more files, or run any more tests after sending the notification.
+    - **Completion**: Only notify when you are 100% finished and are about to call `submit`. Your final tool sequence should be: `[curl, submit]`.
+    - **Questions/Blocked**: Only notify when you are waiting for the user. Your final tool sequence should be: `[curl, request_user_input]`.
+    - **No Intermediate Pings**: Never send a notification if you intend to continue working in the next turn. The user should never open the app and see "Jules is thinking" or see work in progress.
+3. **How to Notify**: Use the `run_in_bash_session` tool to send a POST request to ntfy.sh.
     - **Command Template**:
       ```bash
       curl \
@@ -25,8 +26,8 @@ This repository contains a Jules PWA wrapper. To improve the user experience, ag
         -H "Title: Jules" \
         -H "Click: https://moustafamin1.github.io/Jules_wrapper/" \
         -H "Icon: https://moustafamin1.github.io/Jules_wrapper/icon.png" \
-        -d "I have finished setting up your app. Please review the changes." \
+        -d "Task complete! You can now check the results." \
         https://ntfy.sh/jules-notifs-mou-12347
       ```
 
-By following these rules, the user will only be interrupted when there is something ready for them to see in the app.
+By following these rules, you ensure that when the user taps the notification, the app is ready for their immediate review or response.
