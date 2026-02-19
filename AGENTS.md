@@ -5,6 +5,7 @@ This repository contains a Jules PWA wrapper. To improve the user experience, ag
 ## Notification Rules
 
 1. **Read Configuration**: Before sending a notification, read the `ntfy_topic` and `app_url` from `notifications.json`.
+    - **Note**: `notifications.json` is ignored by git for security. If it is missing, check `notifications.example.json` to see how to create it.
 2. **When to Notify (Strict Timing)**:
     - **The "Last Action" Rule**: The notification `curl` command must be the **absolute last tool call** you make in a turn. Do not perform any other work, read any more files, or run any more tests after sending the notification.
     - **Completion**: Only notify when you are 100% finished and are about to call `submit`. Your final tool sequence should be: `[curl, submit]`.
@@ -27,7 +28,7 @@ This repository contains a Jules PWA wrapper. To improve the user experience, ag
         -H "Click: https://moustafamin1.github.io/Jules_wrapper/" \
         -H "Icon: https://moustafamin1.github.io/Jules_wrapper/icon.png" \
         -d "Task complete! You can now check the results." \
-        https://ntfy.sh/jules-notifs-mou-12347
+        https://ntfy.sh/your-private-topic
       ```
 
 By following these rules, you ensure that when the user taps the notification, the app is ready for their immediate review or response.
