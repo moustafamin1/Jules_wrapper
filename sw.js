@@ -1,15 +1,30 @@
-const CACHE_NAME = 'jules-pwa-v3';
+const CACHE_NAME = 'jules-pwa-v4';
 const ASSETS = [
     './',
     './index.html',
-    './manifest.json',
+    './manifest.json?v=4',
     './icon.png'
 ];
 
 self.addEventListener('install', (event) => {
+    self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => cache.addAll(ASSETS))
+    );
+});
+
+self.addEventListener('activate', (event) => {
+    event.waitUntil(
+        caches.keys().then((cacheNames) => {
+            return Promise.all(
+                cacheNames.map((cacheName) => {
+                    if (cacheName !== CACHE_NAME) {
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
+        }).then(() => self.clients.claim())
     );
 });
 
